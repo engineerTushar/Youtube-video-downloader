@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YouTube Downloader</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="card">
+    <h1>🎬 YouTube Downloader</h1>
+    <p class="sub">Fast • Clean • No Ads</p>
+
+    <form id="form">
+      <input id="url" type="text" placeholder="Paste YouTube link…" required>
+
+      <select id="quality">
+        <option value="360">360p</option>
+        <option value="720">720p HD</option>
+        <option value="1080">1080p Full HD</option>
+        <option value="audio">MP3 Audio</option>
+      </select>
+
+      <button id="btn" type="submit">
+        <span id="btnText">Download</span>
+        <span class="spinner" id="spinner"></span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById("form");
+const spinner = document.getElementById("spinner");
+const btnText = document.getElementById("btnText");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  spinner.style.display = "inline-block";
+  btnText.textContent = "Downloading…";
+
+  const data = new FormData();
+  data.append("url", document.getElementById("url").value);
+  data.append("quality", document.getElementById("quality").value);
+
+  const res = await fetch("/download", { method: "POST", body: data });
+
+  if (!res.ok) {
+    alert(await res.text());
+    spinner.style.display = "none";
+    btnText.textContent = "Download";
+    return;
+  }
+
+  const blob = await res.blob();
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.download = "video";
+  link.click();
+
+  spinner.style.display = "none";
+  btnText.textContent = "Download";
+});
+</script>
+
+</body>
+</html>
